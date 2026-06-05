@@ -8,4 +8,5 @@ models/
 # generated outputs & assets
 runs/
 assets/*.mp4
+assets/*.mkv
 assets/*.jpg
