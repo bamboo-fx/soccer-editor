@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+# model weights & data — downloaded, not committed
+models/
+*.pt
+# generated outputs & assets
+runs/
+assets/*.mp4
+assets/*.jpg

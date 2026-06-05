@@ -1,0 +1,43 @@
+# Amateur / fixed-camera footage on CPU: lean settings so a multi-minute clip is
+# tractable without a GPU. Uses soccer models + BoT-SORT ReID.
+model:
+  weights: models/football-player-detection.pt
+  person_classes: [1, 2, 3]
+  ball_class: 0
+  conf: 0.30
+  imgsz: 800
+  ball_weights: models/football-ball-detection.pt
+  ball_class_in_ball_model: 0
+  ball_conf: 0.10
+
+tracker:
+  # ByteTrack here for speed; our OSNet `consolidate` step does the ReID work.
+  name: bytetrack.yaml
+
+sampling:
+  fps_target: 4
+
+teams:
+  num_teams: 2
+
+reid:
+  enabled: true
+  embedder: osnet                              # osnet (person-ReID) | resnet18 (fallback)
+  osnet_weights: models/osnet_x1_0_market.pth
+  max_gap_seconds: 10.0
+  appearance_thresh: 0.80                       # OSNet sims run lower than ResNet; tune here
+  max_speed_px_per_s: 1200.0
+  crops_per_track: 8
+
+involvement:
+  proximity_player_heights: 4.0
+  ball_memory_frames: 12
+
+highlights:
+  pre_seconds: 1.5
+  post_seconds: 1.5
+  merge_gap_seconds: 2.0
+  min_segment_seconds: 0.6
+  freeze_intro_seconds: 0.6
+  spotlight: true
+  circle: true

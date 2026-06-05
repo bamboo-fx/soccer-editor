@@ -1,0 +1,43 @@
+# Soccer-specific config: uses the roboflow/sports player + ball models.
+# Run:  python -m soccer_editor -c config.soccer.yaml analyze <video> -o <out>
+
+model:
+  weights: models/football-player-detection.pt
+  person_classes: [1, 2, 3]   # goalkeeper, player, referee (class 0 'ball' handled separately)
+  ball_class: 0
+  conf: 0.30
+  imgsz: 1280
+  ball_weights: models/football-ball-detection.pt
+  ball_class_in_ball_model: 0
+  ball_conf: 0.10
+
+tracker:
+  name: trackers/botsort_reid.yaml
+
+reid:
+  enabled: true
+  embedder: osnet
+  osnet_weights: models/osnet_x1_0_market.pth
+  max_gap_seconds: 8.0
+  appearance_thresh: 0.80
+  max_speed_px_per_s: 1500.0
+  crops_per_track: 8
+
+sampling:
+  fps_target: 10
+
+teams:
+  num_teams: 2
+
+involvement:
+  proximity_player_heights: 4.0
+  ball_memory_frames: 12
+
+highlights:
+  pre_seconds: 1.5
+  post_seconds: 1.5
+  merge_gap_seconds: 2.0
+  min_segment_seconds: 0.6
+  freeze_intro_seconds: 0.6
+  spotlight: true
+  circle: true

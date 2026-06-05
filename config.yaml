@@ -1,0 +1,62 @@
+# ───────────────────────── soccer-editor config ─────────────────────────
+# Everything is tunable here so you never have to touch code to experiment.
+
+model:
+  # Detection weights. Default = generic COCO YOLO (auto-downloads on first run).
+  # COCO detects person (id 0) and sports ball (id 32). Good enough to prove the
+  # pipeline; run `python scripts/get_models.py` and switch to the soccer weights
+  # below for far better players+ball. See README "Upgrading the models".
+  weights: yolov8n.pt
+  person_classes: [0]      # COCO "person". Roboflow soccer model: [1, 2, 3] (gk/player/ref)
+  ball_class: 32           # ball class inside `weights` (COCO). Ignored if ball_weights set.
+  conf: 0.25               # player detection confidence threshold
+  imgsz: 1280              # inference resolution (higher = better small players, slower)
+
+  # Optional dedicated ball model (COCO's ball is unreliable on real footage).
+  # Set to a path like models/yolo-football-ball-detection.pt to enable.
+  ball_weights: null
+  ball_class_in_ball_model: 0
+  ball_conf: 0.10          # ball is tiny — use a low threshold
+
+tracker:
+  # "bytetrack.yaml" (fast), "botsort.yaml", or our "trackers/botsort_reid.yaml"
+  # (appearance ReID on — best identity persistence, slower).
+  name: bytetrack.yaml
+
+reid:
+  # Post-process that re-merges fragmented tracklets of the SAME player.
+  # Runs on CPU in seconds (no YOLO re-run). Run via the `consolidate` command.
+  enabled: true
+  embedder: osnet             # osnet (person-ReID, needs torchreid+weights) | resnet18 (fallback)
+  osnet_weights: models/osnet_x1_0_market.pth
+  max_gap_seconds: 8.0        # only link tracklets separated by less than this
+  appearance_thresh: 0.86     # cosine similarity (ResNet embedding) required to merge
+  max_speed_px_per_s: 1500.0  # reject merges that imply teleporting across the pitch
+  crops_per_track: 8          # crops sampled per tracklet to build its appearance vector
+
+sampling:
+  # Process every Nth frame. 90 min @ 30fps = 162k frames; that's brutal on CPU.
+  # fps_target derives the stride from the source fps. Set to 0 to use every frame.
+  fps_target: 8
+
+teams:
+  # K=2 teams. We cluster each track's average torso color. goalkeepers/refs may
+  # land in their own visual group — that's fine for Phase 0.
+  num_teams: 2
+
+involvement:
+  # A target player is "involved in the play" when close to the ball.
+  # Distance is measured in multiples of the player's own bounding-box height,
+  # which auto-scales with camera zoom (a cheap stand-in for real-world feet
+  # until we add pitch homography in a later phase). ~20ft ≈ a few player-heights.
+  proximity_player_heights: 4.0
+  ball_memory_frames: 12      # keep using last known ball position for N frames if ball vanishes
+
+highlights:
+  pre_seconds: 1.5            # padding before each involvement segment
+  post_seconds: 1.5          # padding after
+  merge_gap_seconds: 2.0     # merge two segments if the gap between them is smaller
+  min_segment_seconds: 0.6   # drop blips shorter than this
+  freeze_intro_seconds: 0.6  # freeze-frame + spotlight at the start of each clip
+  spotlight: true            # dim everyone except the target player
+  circle: true               # draw a marker ring under the target player

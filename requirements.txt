@@ -1,0 +1,11 @@
+# Core CV / ML
+ultralytics>=8.3.0      # YOLO detection + built-in ByteTrack/BoT-SORT tracking
+opencv-python>=4.9.0    # video IO, drawing, annotation
+numpy>=1.26.0
+scikit-learn>=1.4.0     # KMeans for team-color clustering
+pyyaml>=6.0             # config file
+tqdm>=4.66.0            # progress bars
+
+# Optional — better ReID stitching (OSNet). Without these, `consolidate` falls
+# back to a generic ResNet embedding (torchvision ships with ultralytics' torch).
+# pip install torchreid tensorboard gdown

@@ -1,0 +1,18 @@
+# BoT-SORT with appearance ReID enabled — better identity persistence through
+# occlusions and short disappearances than plain ByteTrack.
+# Use via config.yaml -> tracker.name: trackers/botsort_reid.yaml
+tracker_type: botsort
+track_high_thresh: 0.25
+track_low_thresh: 0.1
+new_track_thresh: 0.25
+track_buffer: 60          # keep lost tracks alive longer (we sample frames, so 60 = several seconds)
+match_thresh: 0.8
+fuse_score: True
+
+gmc_method: sparseOptFlow # global motion compensation — important for panning match cameras
+
+# ReID: associate by appearance, not just motion/IoU
+proximity_thresh: 0.5
+appearance_thresh: 0.8
+with_reid: True
+model: auto               # use the detector's own features as the ReID embedding
